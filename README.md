@@ -4,7 +4,7 @@ A command line interface to iTunes for Mac OS X, written in Python.
 
 ## Setup
 
-Like any other else, run
+Like any other Python utility, run
 
 ```
 $ python setup.py install
