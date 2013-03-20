@@ -119,7 +119,7 @@ def play(*query, **kwargs):
                     print "No playlist at index", index
                 else:
                     name = list(matches)[index]
-                    print "Playing playlist", name
+                    print 'Playing playlist "{}"'.format(name)
                     iTunes.user_playlists[name].play()
             else:
                 print "More than one result. "\
@@ -138,7 +138,7 @@ def play(*query, **kwargs):
         
         def _play(result):
             if not quiet:
-                print "Playing {} by {} on {}".format(result.name.get(),
+                print 'Playing "{}" by "{}" on "{}"'.format(result.name.get(),
                         result.artist.get(), result.album.get())
             result.play()
         
@@ -280,6 +280,52 @@ def list_queue(*args, **kwargs):
                 print "   ",
             print song.name()
 
+def parse_seek(s):
+    """Translates a seek command to a player position.
+    
+    Seek positions may be deltas of the forms:
+        +secs
+        +mins:secs
+        -secs
+        -mins:secs
+    or they may be absolute times.
+    """
+    
+    def parse_mins_secs(s):
+        secs = 0
+        if ':' in s:
+            i = s.index(':')
+            secs += int(s[:i])*60
+            s = s[i+1:]
+        secs += int(s)
+        return secs
+    
+    if s[0] in '+-':
+        # it's a delta
+        sign = s[0]
+        s = s[1:]
+        secs = parse_mins_secs(s)
+        delta = secs
+        if sign == '-':
+            delta *= -1
+        return iTunes.player_position() + delta
+    else:
+        # it's an absolute time
+        secs = parse_mins_secs(s)
+        return secs
+            
+
+def seek(*args, **kwargs):
+    if len(args) < 1:
+        print "You haven't specified how much to seek by or where to seek to."
+        print "For example:"
+        print "   itunes seek +10   (seek 10 seconds forward)"
+        print "   itunes seek -1:10 (seek 1 minute and 10 seconds back)"
+        print "   itunes seek 2:35  (seek to 2 minutes and 35 seconds in)"
+        print "(Looking for the current seek time? Try the 'info' command)"
+    else:
+        iTunes.player_position.set(parse_seek(args[0]))
+
 commands = {
     'play': play,
     'info': info,
@@ -287,7 +333,8 @@ commands = {
     'list-queue': list_queue,
     'stop': lambda *args, **kwargs: iTunes.pause(),
     'next': lambda *args, **kwargs: iTunes.next_track(),
-    'back': lambda *args, **kwargs: iTunes.back_track()
+    'back': lambda *args, **kwargs: iTunes.back_track(),
+    'seek': seek
 }
 
 def main():
