@@ -245,6 +245,16 @@ def info(*args, **kwargs):
     except:
         print "Cannot determine shuffling status."
     print
+    
+    try:
+        playlist = iTunes.current_playlist()
+        if playlist == iTunes.playlists['Library']():
+            print "Playing entire library."
+        else:
+            print "Playing playlist:", playlist.name()
+    except:
+        print "Cannot determine which playlist is playing."
+    
     try:
         track = iTunes.current_track()
         pos = iTunes.player_position()
