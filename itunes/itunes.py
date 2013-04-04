@@ -250,6 +250,8 @@ def info(*args, **kwargs):
         playlist = iTunes.current_playlist()
         if playlist == iTunes.playlists['Library']():
             print "Playing entire library."
+        elif playlist == playQueue():
+            print "Playing queued songs."
         else:
             print "Playing playlist:", playlist.name()
     except:
@@ -260,9 +262,10 @@ def info(*args, **kwargs):
         pos = iTunes.player_position()
         
         print "Current Track:"
-        print "\t", track.name()
-        print "\t", track.artist()
-        print "\t", track.album()
+        print "\tTitle:  ", track.name()
+        print "\tArtist: ", track.artist()
+        print "\tAlbum:  ", track.album()
+        print "\tRating: ", "*" * (track.rating()//20)
         print
         print make_pbar(pos, track.duration())
     except:
